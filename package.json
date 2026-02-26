@@ -1,0 +1,89 @@
+{
+  "name": "transformer",
+  "displayName": "transformer",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:transformer.listRepoChanges",
+    "onCommand:transformer.reviewRepoChangesPickModel"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "transformer.listRepoChanges",
+        "title": "List Repo Changes"
+      },
+      {
+        "command": "transformer.reviewRepoChangesPickModel",
+        "title": "Pick LM Model and Review"
+      }
+    ],
+    "configuration": {
+      "title": "Transformer",
+      "properties": {
+        "transformer.vscodeLmVendor": {
+          "type": "string",
+          "default": "",
+          "description": "Optional VS Code LM vendor selector (e.g. copilot)."
+        },
+        "transformer.vscodeLmFamily": {
+          "type": "string",
+          "default": "",
+          "description": "Optional VS Code LM family selector."
+        },
+        "transformer.vscodeLmVersion": {
+          "type": "string",
+          "default": "",
+          "description": "Optional VS Code LM version selector."
+        },
+        "transformer.vscodeLmId": {
+          "type": "string",
+          "default": "",
+          "description": "Optional VS Code LM id selector."
+        },
+        "transformer.vscodeLmPickModel": {
+          "type": "boolean",
+          "default": false,
+          "description": "Prompt to select a VS Code LM model when multiple are available."
+        },
+        "transformer.maxDiffBytes": {
+          "type": "number",
+          "default": 120000,
+          "minimum": 1000,
+          "description": "Maximum diff size (bytes) sent to the LLM."
+        },
+        "transformer.maxFilePreviewBytes": {
+          "type": "number",
+          "default": 20000,
+          "minimum": 1000,
+          "description": "Maximum total bytes for untracked file previews when diffs are empty."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.101.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.54.0",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
