@@ -51,6 +51,12 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(pickReviewDisposable);
+
+	const diagnosticsDisposable = vscode.commands.registerCommand('transformer.lmDiagnostics', async () => {
+		await runLmDiagnostics();
+	});
+
+	context.subscriptions.push(diagnosticsDisposable);
 }
 
 // This method is called when your extension is deactivated
@@ -99,10 +105,59 @@ async function runVscodeLmReviewPick(context: vscode.ExtensionContext, output: v
 		);
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		if (message.toLowerCase().includes('cancel')) {
+		const normalized = message.toLowerCase();
+		if (normalized.includes('cancel')) {
 			vscode.window.showInformationMessage('Review cancelled.');
+			return;
+		}
+		if (normalized.includes('language model api is not available')) {
+			vscode.window.showInformationMessage(
+				'This editor does not expose the VS Code Language Model API. Review requires an editor-provided model.',
+			);
+			return;
+		}
+		if (normalized.includes('no vs code language models available')) {
+			vscode.window.showInformationMessage(
+				'No language models are available from the editor. Configure a model and try again.',
+			);
 			return;
 		}
 		vscode.window.showErrorMessage(`Failed to review repo changes: ${message}`);
 	}
+}
+
+async function runLmDiagnostics() {
+	const output = vscode.window.createOutputChannel('LM Diagnostics');
+	output.clear();
+	output.appendLine('Language Model Diagnostics');
+	output.appendLine('');
+
+	if (!vscode.lm) {
+		output.appendLine('vscode.lm: NOT AVAILABLE');
+		output.appendLine('');
+		output.appendLine('This editor does not expose the VS Code Language Model API.');
+		output.show(true);
+		return;
+	}
+
+	output.appendLine('vscode.lm: available');
+	const models = await vscode.lm.selectChatModels({});
+	if (!models || models.length === 0) {
+		output.appendLine('Models: none');
+		output.appendLine('Configure an editor-provided model and try again.');
+		output.show(true);
+		return;
+	}
+
+	output.appendLine(`Models: ${models.length}`);
+	for (const model of models) {
+		output.appendLine(`- ${model.name}`);
+		output.appendLine(`  id: ${model.id}`);
+		output.appendLine(`  vendor: ${model.vendor}`);
+		output.appendLine(`  family: ${model.family}`);
+		output.appendLine(`  version: ${model.version}`);
+		output.appendLine(`  maxInputTokens: ${model.maxInputTokens}`);
+	}
+
+	output.show(true);
 }

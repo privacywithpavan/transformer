@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { readFile } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 import { getMaxFilePreviewBytes } from './config';
 
 export async function getFilePreviews(repoRoot: string, paths: string[]): Promise<string[]> {
@@ -15,6 +15,11 @@ export async function getFilePreviews(repoRoot: string, paths: string[]): Promis
 			break;
 		}
 		const fullPath = vscode.Uri.joinPath(vscode.Uri.file(repoRoot), relPath).fsPath;
+		const info = await stat(fullPath);
+		if (info.isDirectory()) {
+			previews.push(`[${relPath}]\n(directory skipped)`);
+			continue;
+		}
 		const buffer = await readFile(fullPath);
 		if (buffer.includes(0)) {
 			previews.push(`[${relPath}]\n(binary file skipped)`);

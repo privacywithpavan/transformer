@@ -11,7 +11,8 @@
   ],
   "activationEvents": [
     "onCommand:transformer.listRepoChanges",
-    "onCommand:transformer.reviewRepoChangesPickModel"
+    "onCommand:transformer.reviewRepoChangesPickModel",
+    "onCommand:transformer.lmDiagnostics"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -23,6 +24,10 @@
       {
         "command": "transformer.reviewRepoChangesPickModel",
         "title": "Pick LM Model and Review"
+      },
+      {
+        "command": "transformer.lmDiagnostics",
+        "title": "LM Diagnostics"
       }
     ],
     "configuration": {
